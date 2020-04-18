@@ -10,7 +10,8 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *"> -->
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs ">
+
 
     <!-- Required meta tags-->
     <meta charset="utf-8">
@@ -77,8 +78,8 @@
                         </div>
                       </li>
                       <div class="row">
-                        <a href="/about/" type="submit" class="button button-round button-fill" id="ingresar">Ingresar</a>
-                        <a href="/registro/" type="submit" class="button button-round button-fill" id="registrar">Registrarse</a>
+                        <a href="#" type="submit" class="col-50 button button-round button-fill" id="ingresar">Ingresar</a> 
+                        <a href="/registro/" type="submit" class="col-50 button button-round button-fill" id="registrar">Registrarse</a>
                       </div>
                     </div>
                   </form>
@@ -91,11 +92,17 @@
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
     <script type="text/javascript" src="js/my-app.js"></script>
+
+
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
     <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#available-libraries -->
-    <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
+     
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    
     <script>
       // Your web app's Firebase configuration
       var firebaseConfig = {

@@ -1,6 +1,8 @@
 // If we need to use custom DOM library, let's save it to $$ variable:
 var $$ = Dom7;
 
+var mostrarErrores =1;
+
 var app = new Framework7({
     // App root element
     root: '#app',
@@ -29,30 +31,43 @@ var app = new Framework7({
 var mainView = app.views.create('.view-main');
 
 
-var mail,
-    pass,
-    auth,
-    NyA;
-    var errorCode
-    var errorMessage
+var elMail, laPass, auth, nombre, apellido, fNac, huboError=0;
+var errorCode    
+var errorMessage
+
+ /*VAR BASE DE DATOS*/
+  var db 
+  var refUsuarios 
+ /*FIN VAR BASE DE DATOS */
+
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
+
+  console.log("ready")
+   
+   db = firebase.firestore();
+   refUsuarios = db.collection("USUARIOS");
+
    auth = firebase.auth();
-  $$("#ingresar").on("click",fnIngreso);
-  
+
+   $$("#ingresar").on("click",fnIngreso);
+
 });
 
 // Option 1. Using one 'page:init' handler for all pages
 $$(document).on('page:init', function (e) {
     // Do something here when page loaded and initialized
-    console.log(e);
+    fnMostrarError(e);
+  
 
 })
 
 // Option 2. Using live 'page:init' event handlers for each page
 $$(document).on('page:init', '.page[data-name="about"]', function (e) {
     // Do something here when page with data-name="about" attribute loaded and initialized
-    
+    $$("#nombre").html(nombre)
+    $$("#apellido").html(apellido)
+    $$("#fnacimiento").html(fNac)
 })
 
 // Option 2. Using live 'page:init' event handlers for each page
@@ -65,23 +80,49 @@ $$(document).on('page:init', '.page[data-name="pagRegistro"]', function (e) {
 
 
 function fnIngreso(){
-  auth.signInWithEmailAndPassword(mail, pass).catch(function(error) {  
+  huboError=0;
+  elMail=$$("#mail").val();
+  laPass=$$("#pass").val();
+
+  auth.signInWithEmailAndPassword(elMail, laPass).catch(function(error) {  
+      huboError=1;
+      console.log(huboError)
       errorCode = error.code;
       errorMessage = error.message;
-  });
-  console.log(mail)
-  console.log(pass)
-  console.log(errorCode)
-  console.log(errorMessage)
+  }).then(function(){
+    if(huboError==0){
+      alert("HOLA")
+      mainView.router.navigate("/about/");
+    }
+  })
+  fnMostrarError(errorCode)
+  fnMostrarError(errorMessage)
+  
 }
 
  function fnRegistro(){
-   NyA=$$("#registroName").val();
-   mail=$$("#registroMail").val();
-   pass=$$("#registroPass").val();
+   nombre=$$("#registroName").val();
+   apellido=$$("#registroApellido").val();
+   elMail=$$("#registroMail").val();
+   laPass=$$("#registroPass").val();
+   fNac=$$("#registroBirth").val();
 
-   auth.createUserWithEmailAndPassword(mail, pass).catch(function(error) {
+   var data = {
+    nombre: nombre,
+    apellido: apellido,
+    fnac: fNac,
+   }
+   refUsuarios.doc(elMail).set(data);
+    
+    auth.createUserWithEmailAndPassword(elMail, laPass).catch(function(error) {
       errorCode = error.code;
       errorMessage = error.message;
    });
  }
+
+function fnMostrarError(txt){
+  if(mostrarErrores==1){
+      console.log("ERROR: "+txt);
+  }
+
+}
