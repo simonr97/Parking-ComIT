@@ -1,4 +1,5 @@
-// If we need to use custom DOM library, let's save it to $$ variable:
+// If we need to use custom DOM library, let's save it to $$ variable'
+
 var $$ = Dom7;
 
 var mostrarErrores =1;
@@ -65,6 +66,29 @@ $$(document).on('page:init', function (e) {
 // Option 2. Using live 'page:init' event handlers for each page
 $$(document).on('page:init', '.page[data-name="about"]', function (e) {
     // Do something here when page with data-name="about" attribute loaded and initialized
+
+      refUsuarios.doc(elMail).get().then(function(doc){
+        if(doc.exists){
+            nombre=doc.data().nombre
+            apellido=doc.data().apellido
+            fNac=doc.data().fnac
+        }else{
+          console.log("No Such Document!")
+        }
+      }).catch(function(error){
+        console.log("Error getting document:", error)
+      })   
+     
+      $$("#nomPanel").html(nombre)
+      $$("#apePanel").html(apellido)
+      $$("#mailPanel").html(elMail)
+      $$("#fnacPanel").html(fNac)
+
+
+     console.log("Este es el nombre"+nombre)
+     console.log("Este es el apellido"+apellido)
+     console.log("Este es la fecha de nacimiento"+fNac)
+
     $$("#nombre").html(nombre)
     $$("#apellido").html(apellido)
     $$("#fnacimiento").html(fNac)
@@ -80,9 +104,13 @@ $$(document).on('page:init', '.page[data-name="pagRegistro"]', function (e) {
 
 
 function fnIngreso(){
+
   huboError=0;
-  elMail=$$("#mail").val();
-  laPass=$$("#pass").val();
+  elMail=$$("#ingresoMail").val();
+  laPass=$$("#ingresoPass").val();
+  console.log(nombre)
+  console.log(apellido)
+  console.log(fNac)
 
   auth.signInWithEmailAndPassword(elMail, laPass).catch(function(error) {  
       huboError=1;
@@ -91,7 +119,6 @@ function fnIngreso(){
       errorMessage = error.message;
   }).then(function(){
     if(huboError==0){
-      alert("HOLA")
       mainView.router.navigate("/about/");
     }
   })
@@ -101,12 +128,16 @@ function fnIngreso(){
 }
 
  function fnRegistro(){
+
+  db = firebase.firestore();
+  refUsuarios = db.collection("USUARIOS");
+
    nombre=$$("#registroName").val();
    apellido=$$("#registroApellido").val();
    elMail=$$("#registroMail").val();
    laPass=$$("#registroPass").val();
    fNac=$$("#registroBirth").val();
-
+   
    var data = {
     nombre: nombre,
     apellido: apellido,

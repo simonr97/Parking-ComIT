@@ -1,10 +1,23 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="about">
+    <div class="panel panel-left panel-reveal panel-cover panel-init">
+        <div class="block">
+          <h3 id="nomPanel"></h3><h3 id="apePanel"></h3>
+          <p>Tu email</p>
+          <p id="mailPanel"></p>
+          <hr/>
+          <p>Tu Fecha de Nacimiento</p>
+          <p id="fnacPanel"></p>
+          <hr/>
+          <p><a class="panel-close" href="#">Cerrar</a></p>
+        </div>
+      </div>
     <div class="navbar">
         <div class="navbar-inner sliding">
         <div class="left">
+            <div><i data-panel=".panel-left" class="panel-open f7-icons">menu</i></div>
             <a href="#" class="link back">
-            <i class="icon icon-back"></i>
+            <i class="icon f7-icons material-icons">house_fill</i>
             <span class="ios-only">Back</span>
             </a>
         </div>
