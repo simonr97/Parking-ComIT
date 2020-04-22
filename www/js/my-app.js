@@ -36,6 +36,12 @@ var elMail, laPass, auth, nombre, apellido, fNac, huboError=0;
 var errorCode    
 var errorMessage
 
+/*VAR LOCAL STORAGE*/
+var storage = window.localStorage;
+var usuario = { "email": "", "clave": "" };
+var usuarioLocal, claveLocal;
+/*FIN VAR LOCAL STORAGE*/
+
  /*VAR BASE DE DATOS*/
   var db 
   var refUsuarios 
@@ -43,6 +49,8 @@ var errorMessage
 
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
+
+  consultarLocalStorage();
 
   console.log("ready")
    
@@ -53,6 +61,7 @@ $$(document).on('deviceready', function() {
 
    $$("#ingresar").on("click",fnIngreso);
 
+   
 });
 
 // Option 1. Using one 'page:init' handler for all pages
@@ -117,8 +126,15 @@ function fnIngreso(){
       console.log(huboError)
       errorCode = error.code;
       errorMessage = error.message;
+      alert(errorMessage)
   }).then(function(){
     if(huboError==0){
+      //ingreso por localStorage
+      usuario = { email: elMail, clave: laPass };
+      var usuarioAGuardar = JSON.stringify(usuario);
+      storage.setItem("usuario", usuarioAGuardar);
+      console.log("usuarioAGuardar: " + usuarioAGuardar);
+      console.log("usuario: " + usuario.email + "password: " + usuario.clave); 
       mainView.router.navigate("/about/");
     }
   })
@@ -150,6 +166,57 @@ function fnIngreso(){
       errorMessage = error.message;
    });
  }
+
+ function consultarLocalStorage(){
+        
+  var usuarioGuardado = storage.getItem("usuario");
+  usuarioGuardado = JSON.parse(usuarioGuardado);
+  // convertimos el string en JSON
+
+      if (usuarioGuardado.email == ""){
+          console.log("no hay datos en el local");
+          } 
+          else {
+                console.log(" usuarioguardado.email: " + usuarioGuardado.email);
+                console.log(" usuarioguardado.clave: " + usuarioGuardado.clave);
+                //pasar los datos del json a dos variables independientes
+                usuarioLocal = usuarioGuardado.email;
+                claveLocal = usuarioGuardado.clave;
+                console.log("usuariolocal + clavelocal: " + usuarioLocal + claveLocal)
+                //si la variable tiene datos llamamos a una funcion de login pasandole las variables como parametros
+                  if ( usuarioGuardado != null){
+                      LoguearseConLocal(usuarioLocal, claveLocal);
+                    }
+              }
+}
+
+function LoguearseConLocal(u,c ){
+       console.log("loguearseconlocal, u+c"+u+c)
+       
+  //Se declara la variable huboError (bandera)
+  var huboError = 0;     
+  firebase.auth().signInWithEmailAndPassword(u, c)
+      .catch(function(error){
+          //Si hubo algun error, ponemos un valor referenciable en la variable huboError
+          huboError = 1;
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.error(errorMessage);
+          console.log(errorCode);
+      })
+      .then(function(){   
+          //En caso de que esté correcto el inicio de sesión y no haya errores, se dirige a la siguiente página
+          if(huboError == 0){
+            $$("#ingresoMail").val(u)
+            $$("#ingresoPass").val(c)
+            fnIngreso();
+            console.log("te logueaste");
+          }
+      }); 
+
+};
+
+
 
 function fnMostrarError(txt){
   if(mostrarErrores==1){
