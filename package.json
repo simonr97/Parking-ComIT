@@ -4,10 +4,12 @@
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-geolocation": {}
     }
   },
   "dependencies": {
+    "cordova-plugin-geolocation": "4.0.2",
     "framework7-icons": "^3.0.0"
   }
 }

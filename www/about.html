@@ -1,6 +1,6 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="about">
-    <div class="panel panel-left panel-reveal panel-cover panel-init">
+    <div class="panel panel-left panel-reveal panel-cover panel-init panel-resizable">
         <div class="block">
           <h3 id="nomPanel"></h3><h3 id="apePanel"></h3>
           <p>Tu email</p>
@@ -13,9 +13,9 @@
         </div>
       </div>
     <div class="navbar">
-        <div class="navbar-inner sliding">
+        <div class="navbar-inner">
         <div class="left">
-            <div><i data-panel=".panel-left" class="panel-open f7-icons">menu</i></div>
+            <div><i class=" button panel-open panel-open f7-icons" href="#" data-panel=".panel-left">menu</i></div>
             <a href="#" class="link back">
             <i class="icon f7-icons material-icons">house_fill</i>
             <span class="ios-only">Back</span>
@@ -25,8 +25,6 @@
         </div>
     </div>
     <div class="page-content">
-        <h1 id="nombre" val=""></h1>
-        <h1 id="apellido" val=""></h1>
-        <h1 id="fnacimiento" val=""></h1>
+        <div style="width: 100vw; height: 70vh" id="mapContainer"></div>
     </div>
 </div>

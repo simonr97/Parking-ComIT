@@ -10,13 +10,14 @@
             * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
                 * Enable inline JS: add 'unsafe-inline' to default-src
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs ">
-
-
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline'; font-src * data: URIs "> -->
+        
     <!-- Required meta tags-->
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src   * 'self' 'unsafe-inline' 'unsafe-eval'; script-src    * 'self' 'unsafe-inline' 'unsafe-eval'; img-src       * data: blob: 'self' 'unsafe-inline' 'unsafe-eval'; frame-src     * 'self' 'unsafe-inline' 'unsafe-eval'; style-src     * 'self' 'unsafe-inline' 'unsafe-eval'; font-src      * data: file: URIs 'self' 'unsafe-inline' 'unsafe-eval'; connect-src   * data: blob: file: 'self' 'unsafe-inline' 'unsafe-eval'; worker-src    * data: blob: file: 'self' 'unsafe-inline' 'unsafe-eval';">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
     <!-- Color theme for statusbar -->
     <meta name="theme-color" content="#2196f3">
     <!-- Your app title -->
@@ -27,6 +28,8 @@
     <link rel="stylesheet" href="css/icons.css">
     <!-- Path to your custom app styles-->
     <link rel="stylesheet" href="css/app.css">
+    <!-- Path to UI map elements -->
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
 </head>
 
 <body>
@@ -41,45 +44,40 @@
             <!-- Initial Page, "data-name" contains page name -->
           <div data-name="index" class="page">
                 <!-- Top Navbar -->
-              <div class="navbar">
-                    <div class="navbar-bg"></div>
-                    <div class="navbar-inner">
-                        <div class="title">Parking</div>
-                    </div>
-              </div>
+              
+              
         
-        
-                <!-- Scrollable page content -->
-                <div class="page-content text-align-center">
-                  <div class="block"></div>
-                  <form method=“get” >
+                <div class="page-content login-screen-content">
+                  <div class="login-screen-title">Parking</div>
+                  <form>
                     <div class="list inline-labels no-hairlines-md">
-
-                      <li class="item-content item-input">
-                        <div class="item-media">
-                          <i class="icon demo-list-icon"></i>
-                        </div>
-                        <div class="item-inner">
-                          <div class="item-title item-label">E-mail</div>
-                          <div class="item-input-wrap">
-                            <input type="email" placeholder="Your e-mail" id="ingresoMail" value="" required>
+                      <ul>
+                        <li class="item-content item-input">
+                          <div class="item-inner">
+                            <div class="item-title item-label">E-mail</div>
+                            <div class="item-input-wrap">
+                              <input type="email" placeholder="Your e-mail" id="ingresoMail" value="" required>
+                            </div>
                           </div>
-                        </div>
-                      </li>
-                      <li class="item-content item-input">
-                        <div class="item-media">
-                          <i class="icon demo-list-icon"></i>
-                        </div>
-                        <div class="item-inner">
-                          <div class="item-title item-label">Password</div>
-                          <div class="item-input-wrap">
-                            <input type="password" placeholder="Your password" id="ingresoPass" value="" required>
+                        </li>
+                        <li class="item-content item-input">
+                          <div class="item-inner">
+                            <div class="item-title item-label">Password</div>
+                            <div class="item-input-wrap">
+                              <input type="password" placeholder="Your password" id="ingresoPass" value="" required>
+                            </div>
                           </div>
-                        </div>
-                      </li>
-                      <div class="row">
-                        <a href="#" type="submit" class="col-50 button button-round button-fill" id="ingresar">Ingresar</a> 
-                        <a href="/registro/" type="submit" class="col-50 button button-round button-fill" id="registrar">Registrarse</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="list">
+                      <ul>
+                        <li><a href="#" type="submit" class="col-50 buttonitem-link list-button" id="ingresar">Ingresar</a> </li>
+                        <li><a href="/registro/" type="submit" class="col-50 buttonitem-link item-link list-button" id="registrar">Registrarse</a></li></br>
+                      </ul>
+                      <div class="block-footer">
+                        <p>Created by Simon Rodriguez 2020</p> </br>
+                        <p>Contact info simon.rodriguez.1997@gmail.com</p>
                       </div>
                     </div>
                   </form>
@@ -93,6 +91,9 @@
     <script type="text/javascript" src="lib/framework7/js/framework7.bundle.min.js"></script>
     <script type="text/javascript" src="js/my-app.js"></script>
 
+    <!-- Libreria de Here -->
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js" type="text/javascript" charset="utf-8"></script>
 
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
@@ -116,6 +117,13 @@
       };
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
+    </script>
+    <!-- SCRIPTS DEL MAPA (HERE) -->
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+      var platform = new H.service.Platform({'apikey': 'uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk'});
     </script>
 
 </body>

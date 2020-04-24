@@ -1,11 +1,11 @@
 {
   "background_color": "#FFF",
   "display": "standalone",
-  "name": "helloworld",
-  "short_name": "helloworld",
-  "version": "com.phonegap.helloworld",
+  "name": "Parking",
+  "short_name": "Parking",
+  "version": "com.phonegap.Parking",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
-  "author": "Apache Cordova Team",
+  "author": "Simon Rodriguez",
   "icons": [],
   "start_url": "index.html",
   "theme_color": "#2196f3"

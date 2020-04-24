@@ -7,6 +7,9 @@
     "files": {}
   },
   "installed_plugins": {
+    "cordova-plugin-geolocation": {
+      "PACKAGE_NAME": "com.phonegap.helloworld"
+    },
     "cordova-plugin-keyboard": {
       "PACKAGE_NAME": "com.phonegap.helloworld"
     },
@@ -60,6 +63,7 @@
     }
   ],
   "plugin_metadata": {
+    "cordova-plugin-geolocation": "4.0.2",
     "cordova-plugin-keyboard": "1.2.0",
     "cordova-plugin-splashscreen": "5.0.3",
     "cordova-plugin-statusbar": "2.4.3",
