@@ -35,9 +35,11 @@ var app = new Framework7({
 var mainView = app.views.create('.view-main');
 
 
-var elMail, laPass, auth, userName, userLastName, userBirth, loginError=0, lat, lon;
+var elMail, laPass, auth, userName, userLastName, userBirth, loginError=0, 
+lat=" ", lon=" ";
 var errorCode    
 var errorMessage
+
 
 /*VAR LOCAL STORAGE*/
 var storage = window.localStorage;
@@ -54,11 +56,11 @@ var refusers
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
 
-  consultarLocalStorage();
+  checkLocalSotorage();
 
   console.log("ready") 
 
-  $$("#ingresar").on("click",fnIngreso);
+  $$("#ingresar").on("click",fnLogin);
 
   
 });
@@ -66,7 +68,8 @@ $$(document).on('deviceready', function() {
 // Option 1. Using one 'page:init' handler for all pages
 $$(document).on('page:init', function (e) {
     // Do something here when page loaded and initialized
-    fnMostrarError(e);
+    
+    fnShowError(e);
     db = firebase.firestore();
     refUsuarios = db.collection("USUARIOS");
     auth = firebase.auth();
@@ -76,22 +79,22 @@ $$(document).on('page:init', function (e) {
 $$(document).on('page:init', '.page[data-name="about"]', function (e) {
     // Do something here when page with data-name="about" attribute loaded and initialized
 
-      fnCrearMapa()
+      fnCreateMap()
 
-      fnTraerDatos()
+      fnGetUserData()
 
 })
 
 // Option 2. Using live 'page:init' event handlers for each page
 $$(document).on('page:init', '.page[data-name="pagRegistro"]', function (e) {
   // Do something here when page with data-name="pagRegistro" attribute loaded and initialized
-
-  $$("#registraUsuario").on("click",fnRegistro)
+  fnGeolocalizacion()
+  $$("#registraUsuario").on("click",fnRegister)
   
 })
 
 
-function fnIngreso(){
+function fnLogin(){
 
   loginError=0;
   elMail=$$("#ingresoMail").val();
@@ -117,18 +120,20 @@ function fnIngreso(){
       mainView.router.navigate("/about/");
     }
   })
-  fnMostrarError(errorCode)
-  fnMostrarError(errorMessage)
+  fnShowError(errorCode)
+  fnShowError(errorMessage)
   
 }
 
-function fnTraerDatos(){
+function fnGetUserData(){
 
   refUsuarios.doc(elMail).get().then(function(doc){
     if(doc.exists){
         userName=doc.data().nombre
         userLastName=doc.data().apellido
         userBirth=doc.data().fnac
+        lat=doc.data().latitud
+        lon=doc.data().longitud
     }else
       {
       console.log("No Such Document!")
@@ -143,6 +148,8 @@ function fnTraerDatos(){
   $$("#mailPanel").html(elMail)
   $$("#fnacPanel").html(userBirth)
 
+  lat=Number.toString(lat)
+  lon=Number.toString(lon)
 
   console.log("Este es el userName: "+userName)
   console.log("Este es el apellido: "+userLastName)
@@ -154,46 +161,19 @@ function fnTraerDatos(){
 
 }
 
-function fnCrearMapa(){
-
-  fnGeolocalizacion()
-
-  // Initialize the platform object:
-  var platform = new H.service.Platform({
-    'apikey': 'uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk'
-  });
-
-  // Obtain the default map types from the platform object
-  var maptypes = platform.createDefaultLayers();
-
-  // Instantiate (and display) a map object:
-  var map = new H.Map(
-    document.getElementById('mapContainer'),
-    maptypes.vector.normal.map,
-    {
-      zoom: 10,
-      center: { lat: lat , lng: lon }
-    });
-    var ui = H.ui.UI.createDefault(map, maptypes, "es-ES");
-    var mapEvents = new H.mapevents.MapEvents(map) 
-    var behavior = new H.mapevents.Behavior(mapEvents);
-}
-
 function fnGeolocalizacion(){
 
-  var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+  if(lat==""||lon==" "){
+    var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
   if ( app ) {
     // PhoneGap application
-
+    console.log("Geolocalizacion  ")
     var onSuccess = function(position) {
-      alert('Latitude: '          + position.coords.latitude          + '\n' +
-            'Longitude: '         + position.coords.longitude         + '\n' +
-            'Altitude: '          + position.coords.altitude          + '\n' +
-            'Accuracy: '          + position.coords.accuracy          + '\n' +
-            'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
-            'Heading: '           + position.coords.heading           + '\n' +
-            'Speed: '             + position.coords.speed             + '\n' +
-            'Timestamp: '         + position.timestamp                + '\n');
+
+            lat=position.coords.latitude;
+            lon=position.coords.longitude;
+
+            alert("latitud: "+lat+" Longitud: "+lon)
           };
           // onError Callback receives a PositionError object
           //
@@ -204,18 +184,55 @@ function fnGeolocalizacion(){
        navigator.geolocation.getCurrentPosition(onSuccess, onError);
       
       } 
-      else {
-           // Web page
-           lat = "-32.95";
-           lon = "-60.64";
-           console.log("LAT BROWSER: "+lat+" LON BROWSER: "+lon);
-       }  
+       else{
+            // Web page
+            lat = "-32.955204";
+            lon = "-60.62875";
+        }  
+  }else{
+    alert("latitud: "+lat+" Longitud: "+lon)
+  }
+
+  
       
  }
 
+function fnCreateMap(){
 
-function fnRegistro(){
+  fnGeolocalizacion()
 
+  // Initialize the platform object:
+  var platform = new H.service.Platform({
+    'apikey': 'uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk'
+  });
+  // Get an instance of the geocoding service:
+  var service = platform.getSearchService();
+  service.reverseGeocode({
+    at: lat+","+lon,
+  },(result) => {
+    // Add a marker for each location found
+    result.items.forEach((item) => {
+      map.addObject(new H.map.Marker(item.position));
+    });
+  }, alert);
+  
+  // Obtain the default map types from the platform object
+  var maptypes = platform.createDefaultLayers();
+
+  // Instantiate (and display) a map object:
+  var map = new H.Map(
+    document.getElementById('mapContainer'),
+    maptypes.vector.normal.map,
+    {
+      zoom: 15,
+      center: { lat: lat , lng: lon }
+    });
+    var ui = H.ui.UI.createDefault(map, maptypes, "es-ES");
+    var mapEvents = new H.mapevents.MapEvents(map) 
+    var behavior = new H.mapevents.Behavior(mapEvents);
+}
+
+function fnRegister(){
   db = firebase.firestore();
   refUsuarios = db.collection("USUARIOS");
 
@@ -224,11 +241,15 @@ function fnRegistro(){
    elMail=$$("#registroMail").val();
    laPass=$$("#registroPass").val();
    userBirth=$$("#registroBirth").val();
+   latitude=lat;
+   longitude=lon;
    
    var data = {
     nombre: userName,
     apellido: userLastName,
     fnac: userBirth,
+    latitud:latitude,
+    longitud:longitude,
    }
    refUsuarios.doc(elMail).set(data);
     
@@ -238,7 +259,7 @@ function fnRegistro(){
    });
  }
 
- function consultarLocalStorage(){
+ function checkLocalSotorage(){
         
   var usuarioGuardado = storage.getItem("usuario");
   // usuarioGuardado = JSON.parse(usuarioGuardado);
@@ -282,7 +303,7 @@ function LoguearseConLocal(u,c ){
           if(loginError == 0){
             $$("#ingresoMail").val(u)
             $$("#ingresoPass").val(c)
-            fnIngreso();
+            fnLogin();
             console.log("te logueaste");
           }
       }); 
@@ -291,7 +312,7 @@ function LoguearseConLocal(u,c ){
 
 
 
-function fnMostrarError(txt){
+function fnShowError(txt){
   if(mostrarErrores==1){
       console.log("ERROR: "+txt);
   }
