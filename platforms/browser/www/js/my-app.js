@@ -12,12 +12,12 @@ var app = new Framework7({
     // App id
     id: 'com.myapp.test',
     // Enable swipe panel
-    panel: {
-      swipe: 'left',
-      swipe: false,
-      rezisable:true,
-      backdrop: true
-    },
+    // panel: {
+    //   swipe: 'left',
+    //   swipe: false,
+    //   rezisable:true,
+    //   backdrop: true
+    // },
     // Add default routes
     routes: [
       {
@@ -210,10 +210,11 @@ function fnCreateMap(){
   service.reverseGeocode({
     at: lat+","+lon,
   },(result) => {
-    // Add a marker for each location found
-    result.items.forEach((item) => {
-      map.addObject(new H.map.Marker(item.position));
-    });
+     // Add a marker for each location found
+     result.items.forEach((item) => {
+       map.addObject(new H.map.Marker(item.position));
+     });
+
   }, alert);
   
   // Obtain the default map types from the platform object
@@ -230,6 +231,28 @@ function fnCreateMap(){
     var ui = H.ui.UI.createDefault(map, maptypes, "es-ES");
     var mapEvents = new H.mapevents.MapEvents(map) 
     var behavior = new H.mapevents.Behavior(mapEvents);
+
+  //    //Geodecodificador de Direcciones
+  //   url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
+  //   app.request.json(url, {
+  //   searchtext: 'Cordoba 3201, rosario, santa fe',
+  //   apiKey: 'uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk',
+  //   gen: '9'
+  // }, function (data) {
+  //    // hacer algo con data
+  //    console.log("geo:" + data);
+  //   // POSICION GEOCODIFICADA de la direccion
+  //   latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
+  //   longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
+  //   console.log(latitud)
+  //   console.log(longitud)
+  //   //alert(latitud + " / " + longitud);
+  //       coordsG = {lat: latitud, lng: longitud},
+  //       markerG = new H.map.Marker(coordsG);
+  //       map.addObject(markerG);
+  //   //     alert(JSON.stringify(data));
+  //   }, function(xhr, status) { console.log("error geo: "+status); }   );
+
 }
 
 function fnRegister(){

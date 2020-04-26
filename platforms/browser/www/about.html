@@ -1,30 +1,59 @@
 <!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
 <div class="page" data-name="about">
-    <div class="panel panel-left panel-reveal panel-cover panel-init panel-resizable">
-        <div class="block">
-          <h3 id="nomPanel"></h3><h3 id="apePanel"></h3>
-          <p>Tu email</p>
-          <p id="mailPanel"></p>
-          <hr/>
-          <p>Tu Fecha de Nacimiento</p>
-          <p id="fnacPanel"></p>
-          <hr/>
-          <p><a class="panel-close" href="#">Cerrar</a></p>
+
+      <div class="toolbar tabbar toolbar-bottom">
+        <div class="toolbar-inner">
+            <!-- Links have "tab-link" class instead of just "link" to switch tabs -->
+            
+            <a href="#tab-1" class="tab-link tab-link-active">
+                <i class="icon f7-icons material-icons">map_fill</i>
+                <span class="tabbar-label ">Map</span>
+            </a>
+
+            <a href="#tab-2" class="tab-link">
+                <i class="icon f7-icons material-icons">person_fill</i>
+                <span class="tabbar-label">Me</span>
+            </a>
+
+            <a href="#tab-3" class="tab-link">
+                <i class="icon f7-icons material-icons">gear_alt_fill</i>
+                <span class="tabbar-label ">Options</span>
+            </a>
+
         </div>
       </div>
-    <div class="navbar">
-        <div class="navbar-inner">
-        <div class="left">
-            <div><i class=" button panel-open panel-open f7-icons" href="#" data-panel=".panel-left">menu</i></div>
-            <a href="#" class="link back">
-            <i class="icon f7-icons material-icons">house_fill</i>
-            <span class="ios-only">Back</span>
+
+      <!-- Tabs -->
+
+      <div class="tabs">
+
+        <!-- First tab, active -->
+        <div class="page-content tab tab-active" id="tab-1">
+            <div class="page-content">
+                <div style="width: 100vw; height: 92.8vh" id="mapContainer"></div>
+            </div>
+        </div>
+
+        <!-- Second tab -->
+        <div class="page-content tab" id="tab-2">
+            <div class="block">
+                <h3 id="nomPanel"></h3><h3 id="apePanel"></h3>
+                <p>Tu email</p>
+                <p id="mailPanel"></p>
+                <hr/>
+                <p>Tu Fecha de Nacimiento</p>
+                <p id="fnacPanel"></p>
+                <hr/>
+            </div>
+        </div>
+
+        <!-- Third tab -->
+        <div class="page-content tab" id="tab-3">
+            <a href="#" class="tab-link link back">
+                <i class="icon f7-icons material-icons">arrow_down_left_square_fill</i>
+                <span class="tabbar-label">Log Out</span>
             </a>
         </div>
-        <div class="title">About Framework7</div>
-        </div>
-    </div>
-    <div class="page-content">
-        <div style="width: 100vw; height: 90vh" id="mapContainer"></div>
-    </div>
+      </div>
+      
 </div>
