@@ -1,0 +1,85 @@
+<!-- We don't need a full layout in this file because this page will be parsed with Ajax.  -->
+<div class="page" data-name="regGaraje">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-not-md">Back</span>
+          </a>
+        </div>
+        <div class="title">Registra tu Garaje</div>
+      </div>
+    </div>
+    <div class="page-content page-content hide-navbar-on-scroll">
+        <div class="block-title">Ingrese sus Datos</div>
+        <form class="list" id="my-form">
+            <ul>
+              <li>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Nombre del Garaje</div>
+                    <div class="item-input-wrap">
+                      <input type="text" name="nombregaraje" id="garageName" placeholder="Ingrese el Nombre" required>
+                    </div>
+                  </div>
+                </div>
+              </li>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Numero de Telefono</div>
+                      <div class="item-input-wrap">
+                        <input type="tel" name="Telefono" id="garageNumber" placeholder="Ingrese el Telefono">
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title item-label">Precio por Hora</div>
+                      <div class="item-input-wrap">
+                        <input type="number" name="precioHora" id="hourChargeGarage" required> 
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <li>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Hora de Apertura (vacio para 24hrs)</div>
+                    <div class="item-input-wrap">
+                      <input type="time" name="hApertura" id="openTimeGarage">
+                    </div>
+                  </div>
+                </div>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Hora de Cierre (vacio para 24hrs)</div>
+                    <div class="item-input-wrap">
+                      <input type="time" name="hCierre" id="closeTimeGarage">
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Descripcion</div>
+                    <div class="item-input-wrap">
+                      <div class="form-group">
+                        <div class="col-xs-8">
+                          <textarea id="garageDesc" rows="3" class="form-control" placeholder="Se recomienda ingresar alguna descripcion del Garaje, como si es techado y/o si tiene mas de 1 piso, etc."></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+        </form>
+            <div class="col"><a class=" link back button convert-form-to-data" id="registraGarage" href="#">Aceptar</a></div>
+    </div>
+</div>

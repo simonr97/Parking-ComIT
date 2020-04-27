@@ -27,7 +27,11 @@ var app = new Framework7({
       {
         path: '/registro/',
         url: 'pagRegistro.html',
-      }
+      },
+      {
+        path: '/regGaraje/',
+        url: 'pagRegistroGaraje.html',
+      },
     ]
     // ... other parameters
   });
@@ -35,7 +39,8 @@ var app = new Framework7({
 var mainView = app.views.create('.view-main');
 
 
-var elMail, laPass, auth, userName, userLastName, userBirth, loginError=0, 
+var elMail, laPass, auth, userName, userLastName, userBirth, loginError=0,
+    gName,gTel,gPrice,gOpenTime,gCloseTime,gDesc,
 lat=" ", lon=" ";
 var errorCode    
 var errorMessage
@@ -72,6 +77,7 @@ $$(document).on('page:init', function (e) {
     fnShowError(e);
     db = firebase.firestore();
     refUsuarios = db.collection("USUARIOS");
+    refGarage = db.collection("GARAGES");
     auth = firebase.auth();
 })
 
@@ -82,6 +88,19 @@ $$(document).on('page:init', '.page[data-name="about"]', function (e) {
       fnCreateMap()
 
       fnGetUserData()
+      
+      $$("#nomPanel").html(userName)
+      $$("#apePanel").html(userLastName)
+      $$("#mailPanel").html(elMail)
+      $$("#fnacPanel").html(userBirth)
+
+
+      $$("#nomGarage").html(gName)
+      $$("#descGarage").html(gDesc)
+      $$("#telGarage").html(gTel)
+      $$("#precioGarage").html(gPrice)
+      $$("#horaApertura").html(gOpenTime)
+      $$("#horaCierre").html(gCloseTime)
 
 })
 
@@ -90,6 +109,14 @@ $$(document).on('page:init', '.page[data-name="pagRegistro"]', function (e) {
   // Do something here when page with data-name="pagRegistro" attribute loaded and initialized
   fnGeolocalizacion()
   $$("#registraUsuario").on("click",fnRegister)
+  
+})
+
+// Option 2. Using live 'page:init' event handlers for each page
+$$(document).on('page:init', '.page[data-name="regGaraje"]', function (e) {
+  // Do something here when page with data-name="regGaraje" attribute loaded and initialized
+  fnGeolocalizacion()
+  $$("#registraGarage").on("click",fnRegisterGarage)
   
 })
 
@@ -129,6 +156,7 @@ function fnGetUserData(){
 
   refUsuarios.doc(elMail).get().then(function(doc){
     if(doc.exists){
+      console.log("entro en lo del usuario")
         userName=doc.data().nombre
         userLastName=doc.data().apellido
         userBirth=doc.data().fnac
@@ -142,11 +170,40 @@ function fnGetUserData(){
     {
     console.log("Error getting document:", error)
     })   
- 
-  $$("#nomPanel").html(userName)
-  $$("#apePanel").html(userLastName)
-  $$("#mailPanel").html(elMail)
-  $$("#fnacPanel").html(userBirth)
+  
+    refGarage.doc(elMail).get().then(function(doc){
+      if(doc.exists){
+        console.log("entro en lo del Garage")
+          $$("#registrarGarageButton").hide()
+          $$("#nomGarage").show()
+          $$("#descGarage").show()
+          $$("#telGarage").show()
+          $$("#precioGarage").show()
+          $$("#horaApertur").show()
+          $$("#horaCierre").show()
+          gName=doc.data().nomGarage
+          gOpenTime=doc.data().horaAperturaGarage
+          gCloseTime=doc.data().horaCierreGarage
+          gTel=doc.data().telGarage
+          gDesc=doc.data().descGarage
+          gPrice=doc.data().precioGarage
+          lat=doc.data().latitud
+          lon=doc.data().longitud 
+      }else
+        {
+          console.log("no traji los datos del garage")
+          $$("#nomGarage").hide()
+          $$("#descGarage").hide()
+          $$("#telGarage").hide()
+          $$("#precioGarage").hide()
+          $$("#horaApertur").hide()
+          $$("#horaCierre").hide()
+        console.log("No Such Document!")
+        }
+    }).catch(function(error)
+      {
+      console.log("Error getting document:", error)
+      })     
 
   lat=Number.toString(lat)
   lon=Number.toString(lon)
@@ -154,10 +211,6 @@ function fnGetUserData(){
   console.log("Este es el userName: "+userName)
   console.log("Este es el apellido: "+userLastName)
   console.log("Este es la fecha de nacimiento: "+userBirth)
-
-  $$("#userName").html(userName)
-  $$("#apellido").html(userLastName)
-  $$("#fnacimiento").html(userBirth)
 
 }
 
@@ -173,7 +226,7 @@ function fnGeolocalizacion(){
             lat=position.coords.latitude;
             lon=position.coords.longitude;
 
-            alert("latitud: "+lat+" Longitud: "+lon)
+            // alert("latitud: "+lat+" Longitud: "+lon)
           };
           // onError Callback receives a PositionError object
           //
@@ -190,7 +243,7 @@ function fnGeolocalizacion(){
             lon = "-60.62875";
         }  
   }else{
-    alert("latitud: "+lat+" Longitud: "+lon)
+    // alert("latitud: "+lat+" Longitud: "+lon)
   }
 
   
@@ -281,6 +334,46 @@ function fnRegister(){
       errorMessage = error.message;
    });
  }
+
+ function fnRegisterGarage(){
+  db = firebase.firestore();
+  refGarage = db.collection("GARAGES");
+
+   gName=$$("#garageName").val();
+   gTel=$$("#garageNumber").val();
+   gPrice=$$("#hourChargeGarage").val();
+   gOpenTime=$$("#openTimeGarage").val();
+   gCloseTime=$$("#closeTimeGarage").val();
+   gDesc=$$("#garageDesc").val();
+   latitude=lat;
+   longitude=lon;
+
+   if(gOpenTime =="" && gCloseTime==""){
+     gCloseTime="24 Horas"
+     gOpenTime="24 Horas"
+   }
+   
+   var data = {
+    nomGarage: gName,
+    telGarage: gTel,
+    precioGarage: gPrice,
+    horaAperturaGarage: gOpenTime,
+    horaCierreGarage: gCloseTime,
+    descGarage: gDesc,
+    latitud:latitude,
+    longitud:longitude,
+   }
+   refGarage.doc(elMail).set(data);
+
+   console.log(gName)
+   console.log(gTel)
+   console.log(gPrice)
+   console.log(gOpenTime)
+   console.log(gCloseTime)
+   console.log(gDesc)
+
+ }
+
 
  function checkLocalSotorage(){
         
