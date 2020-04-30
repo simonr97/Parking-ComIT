@@ -40,15 +40,20 @@ var mainView = app.views.create('.view-main');
 
 
 var elMail, laPass, auth, userName, userLastName, userBirth, loginError=0,
-    gName,gTel,gPrice,gOpenTime,gCloseTime,gDesc,
-lat=" ", lon=" ";
+    gName,gTel,gPrice,gOpenTime,gCloseTime,gDesc,gDisabled,gBike,gStreet,gAddress,gCity,
+lat=0, lon=0,
+gLat=0, gLon=0;
 var errorCode    
 var errorMessage
+var garages
+var cant =0
+
+
 
 
 /*VAR LOCAL STORAGE*/
 var storage = window.localStorage;
-var user = { "email": "", "clave": "" };
+var user = { "email": "", "clave": ""};
 var userLocal, passLocal;
 /*FIN VAR LOCAL STORAGE*/
 
@@ -63,18 +68,15 @@ $$(document).on('deviceready', function() {
 
   checkLocalSotorage();
 
-  console.log("ready") 
-
   $$("#ingresar").on("click",fnLogin);
 
-  
 });
 
 // Option 1. Using one 'page:init' handler for all pages
 $$(document).on('page:init', function (e) {
     // Do something here when page loaded and initialized
     
-    fnShowError(e);
+    // fnShowError(e);
     db = firebase.firestore();
     refUsuarios = db.collection("USUARIOS");
     refGarage = db.collection("GARAGES");
@@ -84,11 +86,11 @@ $$(document).on('page:init', function (e) {
 // Option 2. Using live 'page:init' event handlers for each page
 $$(document).on('page:init', '.page[data-name="about"]', function (e) {
     // Do something here when page with data-name="about" attribute loaded and initialized
+      
+      fnGetUserData()
 
       fnCreateMap()
 
-      fnGetUserData()
-      
       $$("#nomPanel").html(userName)
       $$("#apePanel").html(userLastName)
       $$("#mailPanel").html(elMail)
@@ -101,8 +103,12 @@ $$(document).on('page:init', '.page[data-name="about"]', function (e) {
       $$("#precioGarage").html(gPrice)
       $$("#horaApertura").html(gOpenTime)
       $$("#horaCierre").html(gCloseTime)
+      
+      
 
-})
+});
+
+
 
 // Option 2. Using live 'page:init' event handlers for each page
 $$(document).on('page:init', '.page[data-name="pagRegistro"]', function (e) {
@@ -120,15 +126,19 @@ $$(document).on('page:init', '.page[data-name="regGaraje"]', function (e) {
   
 })
 
-
+//Funcion para el Logeo de Usuario con Email y Contraseña
 function fnLogin(){
+
+  fnGeolocalizacion
 
   loginError=0;
   elMail=$$("#ingresoMail").val();
   laPass=$$("#ingresoPass").val();
   console.log(userName)
   console.log(userLastName)
-  console.log(userBirth)
+  console.log(userBirth) 
+  
+  fnGetUserData()
 
   auth.signInWithEmailAndPassword(elMail, laPass).catch(function(error) {  
       loginError=1;
@@ -142,115 +152,118 @@ function fnLogin(){
       user = { email: elMail, clave: laPass };
       var usuarioAGuardar = JSON.stringify(user);
       storage.setItem("usuario", usuarioAGuardar);
-      // console.log("usuarioAGuardar: " + usuarioAGuardar);
-      // console.log("usuario: " + user.email + "password: " + user.clave); 
       mainView.router.navigate("/about/");
     }
   })
   fnShowError(errorCode)
   fnShowError(errorMessage)
   
-}
-
-function fnGetUserData(){
-
-  refUsuarios.doc(elMail).get().then(function(doc){
-    if(doc.exists){
-      console.log("entro en lo del usuario")
-        userName=doc.data().nombre
-        userLastName=doc.data().apellido
-        userBirth=doc.data().fnac
-        lat=doc.data().latitud
-        lon=doc.data().longitud
-    }else
-      {
-      console.log("No Such Document!")
-      }
-  }).catch(function(error)
-    {
-    console.log("Error getting document:", error)
-    })   
-  
-    refGarage.doc(elMail).get().then(function(doc){
-      if(doc.exists){
-        console.log("entro en lo del Garage")
-          $$("#registrarGarageButton").hide()
-          $$("#nomGarage").show()
-          $$("#descGarage").show()
-          $$("#telGarage").show()
-          $$("#precioGarage").show()
-          $$("#horaApertur").show()
-          $$("#horaCierre").show()
-          gName=doc.data().nomGarage
-          gOpenTime=doc.data().horaAperturaGarage
-          gCloseTime=doc.data().horaCierreGarage
-          gTel=doc.data().telGarage
-          gDesc=doc.data().descGarage
-          gPrice=doc.data().precioGarage
-          lat=doc.data().latitud
-          lon=doc.data().longitud 
-      }else
-        {
-          console.log("no traji los datos del garage")
-          $$("#nomGarage").hide()
-          $$("#descGarage").hide()
-          $$("#telGarage").hide()
-          $$("#precioGarage").hide()
-          $$("#horaApertur").hide()
-          $$("#horaCierre").hide()
-        console.log("No Such Document!")
-        }
-    }).catch(function(error)
-      {
-      console.log("Error getting document:", error)
-      })     
-
-  lat=Number.toString(lat)
-  lon=Number.toString(lon)
-
   console.log("Este es el userName: "+userName)
   console.log("Este es el apellido: "+userLastName)
   console.log("Este es la fecha de nacimiento: "+userBirth)
 
 }
 
-function fnGeolocalizacion(){
+//Funcion para conseguir los datos desde la base de datos desde los datos del ususario hasta los datos del garage
+//Ademas sirve para mostrar o no la informacion en caso de tener un garage registrado
 
-  if(lat==""||lon==" "){
-    var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
-  if ( app ) {
-    // PhoneGap application
-    console.log("Geolocalizacion  ")
-    var onSuccess = function(position) {
+function fnGetUserData(){
 
-            lat=position.coords.latitude;
-            lon=position.coords.longitude;
-
-            // alert("latitud: "+lat+" Longitud: "+lon)
-          };
-          // onError Callback receives a PositionError object
-          //
-          function onError(error) {
-              alert('code: '    + error.code    + '\n' +
-                    'message: ' + error.message + '\n');
-          }
-       navigator.geolocation.getCurrentPosition(onSuccess, onError);
-      
-      } 
-       else{
-            // Web page
-            lat = "-32.955204";
-            lon = "-60.62875";
-        }  
-  }else{
-    // alert("latitud: "+lat+" Longitud: "+lon)
-  }
-
+  refUsuarios.doc(elMail).get().then(function(doc){
+    if(doc.exists){
+        userName=doc.data().nombre
+        userLastName=doc.data().apellido
+        userBirth=doc.data().fnac
+        lat=doc.data().latitud
+        lon=doc.data().longitud
+    }else{
+      console.log("No Such Document!")
+      }
+  }).catch(function(error){
+    console.log("Error getting document:", error)
+    })   
   
-      
- }
+    refGarage.doc(elMail).get().then(function(doc){
+      if(doc.exists){
+          $$("#espacioGarage").show()
+          gName=doc.data().nomGarage
+          gOpenTime=doc.data().horaAperturaGarage
+          gCloseTime=doc.data().horaCierreGarage
+          gTel=doc.data().telGarage
+          gDesc=doc.data().descGarage
+          gPrice=doc.data().precioGarage
+          gCity=doc.data().ciudadGarage
+          gAddress=doc.data().alturaGarage
+          gStreet=doc.data().calleGarage
+          $$("#registrarGarageButton").hide()
+          $$("#nomGarage").show()
+          $$("#descGarage").show()
+          $$("#telGarage").show()
+          $$("#precioGarage").show()
+          if(gCloseTime=="24 Horas" && gOpenTime=="24 Horas"){
+            $$("#divHoraApertura").show()
+            $$("#divHoraCierre").hide()
+          }else{
+            $$("#divHoraApertura").show()
+            $$("#divHoraCierre").show()
+          }
+          $$("#motoGarage").show()
+          $$("#accesoDiscapacitados").show()
+          dire=gStreet+" "+gAddress+" "+gCity
+      }else{
+          console.log("no traji los datos del garage")
+          $$("#nomGarage").hide()
+          $$("#divTelGarage").hide()
+          $$("#divPrecioGarage").hide()
+          $$("#divHoraApertura").hide()
+          $$("#divHoraCierre").hide()
+          $$("#divMotoGarage").hide()
+          $$("#espacioGarage").hide()
+          $$("#divAccesoDiscapacitados").hide()
+        console.log("No Such Document!")
+        }
+    }).catch(function(error){
+      console.log("Error getting document:", error)
+      })     
 
-function fnCreateMap(){
+  console.log("Este es el userName: "+userName)
+  console.log("Este es el apellido: "+userLastName)
+  // console.log("Este es la fecha de nacimiento: "+userBirth) 
+}
+
+//Funcion para conseguir la Latitud y Longitud de la persona
+function fnGeolocalizacion(){
+  // console.log(lat)
+  // console.log(lon) 
+   if(lat==0||lon==0){
+     console.log("entro")
+     var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+     if ( app ){
+         // PhoneGap application
+         var onSuccess = function(position){
+               lat=position.coords.latitude;
+               lon=position.coords.longitude;
+              };
+             // onError Callback receives a PositionError object
+             function onError(error){
+                 alert('code: '    + error.code    + '\n' +
+                       'message: ' + error.message + '\n');
+             }
+         navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        }
+     } 
+    //   else{
+    //    lat = "-32.954552"
+    //    lon= "-60.643696"
+    //  }
+ }  
+
+
+//Funcion que crea el mapa y ubica un marcador en la posicion conseguida de la Geolocalizacion
+function fnCreateMap(){ 
+
+  fnGarages()
+  console.log("ejecuto mapa")
 
   fnGeolocalizacion()
 
@@ -258,17 +271,6 @@ function fnCreateMap(){
   var platform = new H.service.Platform({
     'apikey': 'uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk'
   });
-  // Get an instance of the geocoding service:
-  var service = platform.getSearchService();
-  service.reverseGeocode({
-    at: lat+","+lon,
-  },(result) => {
-     // Add a marker for each location found
-     result.items.forEach((item) => {
-       map.addObject(new H.map.Marker(item.position));
-     });
-
-  }, alert);
   
   // Obtain the default map types from the platform object
   var maptypes = platform.createDefaultLayers();
@@ -285,30 +287,93 @@ function fnCreateMap(){
     var mapEvents = new H.mapevents.MapEvents(map) 
     var behavior = new H.mapevents.Behavior(mapEvents);
 
-  //    //Geodecodificador de Direcciones
-  //   url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json';
-  //   app.request.json(url, {
-  //   searchtext: 'Cordoba 3201, rosario, santa fe',
-  //   apiKey: 'uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk',
-  //   gen: '9'
-  // }, function (data) {
-  //    // hacer algo con data
-  //    console.log("geo:" + data);
-  //   // POSICION GEOCODIFICADA de la direccion
-  //   latitud = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude;
-  //   longitud = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude;
-  //   console.log(latitud)
-  //   console.log(longitud)
-  //   //alert(latitud + " / " + longitud);
-  //       coordsG = {lat: latitud, lng: longitud},
-  //       markerG = new H.map.Marker(coordsG);
-  //       map.addObject(markerG);
-  //   //     alert(JSON.stringify(data));
-  //   }, function(xhr, status) { console.log("error geo: "+status); }   );
+    var svgMarkup = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIyNCIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6Y2M9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zIyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTEwMjguNCkiPjxwYXRoIGQ9Im0xMiAwYy00LjQxODMgMi4zNjg1ZS0xNSAtOCAzLjU4MTctOCA4IDAgMS40MjEgMC4zODE2IDIuNzUgMS4wMzEyIDMuOTA2IDAuMTA3OSAwLjE5MiAwLjIyMSAwLjM4MSAwLjM0MzggMC41NjNsNi42MjUgMTEuNTMxIDYuNjI1LTExLjUzMWMwLjEwMi0wLjE1MSAwLjE5LTAuMzExIDAuMjgxLTAuNDY5bDAuMDYzLTAuMDk0YzAuNjQ5LTEuMTU2IDEuMDMxLTIuNDg1IDEuMDMxLTMuOTA2IDAtNC40MTgzLTMuNTgyLTgtOC04em0wIDRjMi4yMDkgMCA0IDEuNzkwOSA0IDQgMCAyLjIwOS0xLjc5MSA0LTQgNC0yLjIwOTEgMC00LTEuNzkxLTQtNCAwLTIuMjA5MSAxLjc5MDktNCA0LTR6IiBmaWxsPSIjZTc0YzNjIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEwMjguNCkiLz48cGF0aCBkPSJtMTIgM2MtMi43NjE0IDAtNSAyLjIzODYtNSA1IDAgMi43NjEgMi4yMzg2IDUgNSA1IDIuNzYxIDAgNS0yLjIzOSA1LTUgMC0yLjc2MTQtMi4yMzktNS01LTV6bTAgMmMxLjY1NyAwIDMgMS4zNDMxIDMgM3MtMS4zNDMgMy0zIDMtMy0xLjM0MzEtMy0zIDEuMzQzLTMgMy0zeiIgZmlsbD0iI2MwMzkyYiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAxMDI4LjQpIi8+PC9nPjwvc3ZnPg==';
+
+    // Create an icon, an object holding the latitude and longitude, and a marker:
+    var icon = new H.map.Icon(svgMarkup),
+        coords = {lat: lat, lng: lon},
+        marker = new H.map.Marker(coords, {icon: icon});
+    // Add the marker to the map and center the map at the location of the marker:
+      map.addObject(marker);
+      map.setCenter(coords);
+
+      addInfoBubble(map, ui)
 
 }
 
+function fnGetCoords(street, address, city){
+
+  cant
+  var dire= street+" "+address+" "+city;
+
+  garages = new H.map.Group();
+ 
+  console.log(dire)
+
+    url = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+    app.request.json(url,{
+      searchtext: dire,
+      apikey: "uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk",
+      gen: "9"
+    }, 
+    function(data){
+      gLat = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude
+      gLon = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude
+    }, function (xhr, status) {
+      console.log("Error geocode: " + status);
+      alert('Error de geocodificacion')
+    })
+
+    addMarkerToGroup(garages,{lat: gLat, lng: gLon}, gName+" "+gStreet+" "+gAddress+" "+gCity)
+    cant++
+    if(cant==3){
+      var glat2=gLat
+      var glon2=gLon
+      console.log(glat2)
+      console.log(glon2)
+    } 
+      
+    
+}
+
+function addMarkerToGroup(g, coordinate, html) {
+  var marker = new H.map.Marker(coordinate);
+  // add custom data to the marker
+  g.addObject(marker);
+  marker.setData(html);
+  console.log(cant)
+}
+
+ function addInfoBubble(map, ui) {
+
+   map.addObject(garages);
+   // add 'tap' event listener, that opens info bubble, to the group
+   garages.addEventListener('tap', function (evt) {
+     // event target is the marker itself, group is a parent event target
+     // for all objects that it contains
+     var bubble =  new H.ui.InfoBubble(evt.target.getGeometry(), {
+       // read custom data
+       content: evt.target.getData()
+     });
+     // show info bubble
+     ui.addBubble(bubble);
+   }, false);
+
+ }
+
+function fnGetGarages(){
+  refGarage.doc(elMail).get().then(function(querySnapshot){
+    querySnapshot.forEach(function(doc) {
+      
+    });
+  }).catch(function(error) {
+    console.log("Error getting documents: ", error);
+});
+}
+
+//Funcion de Registro del Usuario y Guardado de sus datos en la base de datos con Clave principal siendo su Email
 function fnRegister(){
+  fnGeolocalizacion()
   db = firebase.firestore();
   refUsuarios = db.collection("USUARIOS");
 
@@ -329,24 +394,29 @@ function fnRegister(){
    }
    refUsuarios.doc(elMail).set(data);
     
-    auth.createUserWithEmailAndPassword(elMail, laPass).catch(function(error) {
+    auth.createUserWithEmailAndPassword(elMail, laPass).catch(function(error){
       errorCode = error.code;
       errorMessage = error.message;
    });
  }
 
+ //Funcion de Registro de Garage y Guardado de sus datos en la base de datos con Clave principal siendo su Email 
  function fnRegisterGarage(){
   db = firebase.firestore();
   refGarage = db.collection("GARAGES");
-
+  
    gName=$$("#garageName").val();
    gTel=$$("#garageNumber").val();
    gPrice=$$("#hourChargeGarage").val();
    gOpenTime=$$("#openTimeGarage").val();
    gCloseTime=$$("#closeTimeGarage").val();
-   gDesc=$$("#garageDesc").val();
-   latitude=lat;
-   longitude=lon;
+   gDisabled=$$("#disabledGarage").val();
+   gBike=$$("#bikesGarage").val();
+   gStreet=$$("#garageStreet").val()
+   gAddress=$$("#garageAddress").val()
+   gCity=$$("#garageCity").val()
+   console.log(gBike)
+   console.log(gDisabled)
 
    if(gOpenTime =="" && gCloseTime==""){
      gCloseTime="24 Horas"
@@ -359,9 +429,11 @@ function fnRegister(){
     precioGarage: gPrice,
     horaAperturaGarage: gOpenTime,
     horaCierreGarage: gCloseTime,
-    descGarage: gDesc,
-    latitud:latitude,
-    longitud:longitude,
+    accesoDiscapacitados: gDisabled,
+    estacionamientoMotos: gBike,
+    calleGarage: gStreet,
+    alturaGarage: gAddress,
+    ciudadGarage: gCity
    }
    refGarage.doc(elMail).set(data);
 
@@ -371,10 +443,11 @@ function fnRegister(){
    console.log(gOpenTime)
    console.log(gCloseTime)
    console.log(gDesc)
-
+   
  }
 
-
+//Funcion para Chekear el estado de localStorage si tiene datos lo mand a logearse
+//Si no manda directamente a la pantalla de Registro
  function checkLocalSotorage(){
         
   var usuarioGuardado = storage.getItem("usuario");
@@ -400,8 +473,9 @@ function fnRegister(){
               }
 }
 
+//Funcion para el logeo en caso de que haya datos guardados en el localStorage
 function LoguearseConLocal(u,c ){
-       console.log("loguearseconlocal, u+c"+u+c)
+       console.log("loguearseconlocal, "+u+c)
        
   //Se declara la variable loginError (bandera)
   var loginError = 0;     
@@ -423,11 +497,26 @@ function LoguearseConLocal(u,c ){
             console.log("te logueaste");
           }
       }); 
-
 };
 
+function fnGarages(){
 
+  console.log("entro a lo del forEach")
+  refGarage.get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        //doc.data() is never undefined for query doc snapshots
+         console.log(doc.id, " => ", doc.data());
+          calle=doc.data().calleGarage
+          altura=doc.data().alturaGarage
+          ciudad=doc.data().ciudadGarage
+          fnGetCoords(calle, altura, ciudad)
+    });
+});
 
+}
+      
+
+//Funcion para mostrar los datos mas claramente
 function fnShowError(txt){
   if(mostrarErrores==1){
       console.log("ERROR: "+txt);

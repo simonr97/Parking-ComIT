@@ -26,6 +26,18 @@
                   </div>
                 </div>
               </li>
+              <li>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Direccion del Garaje</div>
+                    <div class="item-input-wrap">
+                      <input type="text" name="callegaraje" id="garageStreet" placeholder="Ingrese la Calle" required>
+                      <input type="number" name="alturagaraje" id="garageAddress" placeholder="Ingrese la Altura" required>
+                      <input type="text" name="ciudadgaraje" id="garageCity" placeholder="Ingrese la Ciudad" required>
+                    </div>
+                  </div>
+                </div>
+              </li>
                 <li>
                   <div class="item-content item-input">
                     <div class="item-inner">
@@ -67,13 +79,17 @@
               <li>
                 <div class="item-content item-input">
                   <div class="item-inner">
-                    <div class="item-title item-label">Descripcion</div>
+                    <div class="item-title item-label">Acceso para discapacitados</div>
                     <div class="item-input-wrap">
-                      <div class="form-group">
-                        <div class="col-xs-8">
-                          <textarea id="garageDesc" rows="3" class="form-control" placeholder="Se recomienda ingresar alguna descripcion del Garaje, como si es techado y/o si tiene mas de 1 piso, etc."></textarea>
-                        </div>
-                      </div>
+                      <input type="checkbox" name="discapacitados" value="true" id="disabledGarage">
+                    </div>
+                  </div>
+                </div>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">Estacionamiento para Motocicletas</div>
+                    <div class="item-input-wrap">
+                      <input type="checkbox" name="gMotocicleta" value="true" id="bikesGarage">
                     </div>
                   </div>
                 </div>

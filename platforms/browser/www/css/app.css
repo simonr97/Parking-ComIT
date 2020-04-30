@@ -1,1 +1,8 @@
 /* Your app custom styles here */
+
+.garageData{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
