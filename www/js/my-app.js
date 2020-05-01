@@ -42,7 +42,8 @@ var mainView = app.views.create('.view-main');
 var elMail, laPass, auth, userName, userLastName, userBirth, loginError=0,
     gName,gTel,gPrice,gOpenTime,gCloseTime,gDesc,gDisabled,gBike,gStreet,gAddress,gCity,
 lat=0, lon=0,
-gLat=0, gLon=0;
+gLat=0, gLon=0,
+bdLat=0,bdLon=0;
 var errorCode    
 var errorMessage
 var garages
@@ -91,6 +92,7 @@ $$(document).on('page:init', '.page[data-name="about"]', function (e) {
 
       fnCreateMap()
 
+      test()
       $$("#nomPanel").html(userName)
       $$("#apePanel").html(userLastName)
       $$("#mailPanel").html(elMail)
@@ -128,8 +130,6 @@ $$(document).on('page:init', '.page[data-name="regGaraje"]', function (e) {
 
 //Funcion para el Logeo de Usuario con Email y Contraseña
 function fnLogin(){
-
-  fnGeolocalizacion
 
   loginError=0;
   elMail=$$("#ingresoMail").val();
@@ -195,6 +195,7 @@ function fnGetUserData(){
           gCity=doc.data().ciudadGarage
           gAddress=doc.data().alturaGarage
           gStreet=doc.data().calleGarage
+          
           $$("#registrarGarageButton").hide()
           $$("#nomGarage").show()
           $$("#descGarage").show()
@@ -252,10 +253,10 @@ function fnGeolocalizacion(){
          navigator.geolocation.getCurrentPosition(onSuccess, onError);
         }
      } 
-    //   else{
-    //    lat = "-32.954552"
-    //    lon= "-60.643696"
-    //  }
+      //   else{
+      //   lat = "-32.954552"
+      //    lon= "-60.643696"
+      //  }
  }  
 
 
@@ -265,7 +266,7 @@ function fnCreateMap(){
   fnGarages()
   console.log("ejecuto mapa")
 
-  fnGeolocalizacion()
+  // fnGeolocalizacion()
 
   // Initialize the platform object:
   var platform = new H.service.Platform({
@@ -296,80 +297,74 @@ function fnCreateMap(){
     // Add the marker to the map and center the map at the location of the marker:
       map.addObject(marker);
       map.setCenter(coords);
-
       addInfoBubble(map, ui)
-
 }
 
-function fnGetCoords(street, address, city){
+ function fnGetCoords(calle, altura, ciudad){
 
-  cant
-  var dire= street+" "+address+" "+city;
+    var dire = calle+" "+altura+" "+ciudad
 
-  garages = new H.map.Group();
- 
-  console.log(dire)
-
-    url = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
-    app.request.json(url,{
+     url = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+     app.request.json(url,{
       searchtext: dire,
       apikey: "uW83Ibh5o_c-r3d91_AmnFpkF-KuFmPXfJNCaquYsVk",
       gen: "9"
-    }, 
-    function(data){
-      gLat = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude
-      gLon = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude
-    }, function (xhr, status) {
-      console.log("Error geocode: " + status);
-      alert('Error de geocodificacion')
-    })
+      }, 
+      function(data){
+        bdLat = data.Response.View[0].Result[0].Location.DisplayPosition.Latitude
+        bdLon = data.Response.View[0].Result[0].Location.DisplayPosition.Longitude
+      }, function (xhr, status) {
+        console.log("Error geocode: " + status);
+        alert('Error de geocodificacion')
+      })   
 
-    addMarkerToGroup(garages,{lat: gLat, lng: gLon}, gName+" "+gStreet+" "+gAddress+" "+gCity)
-    cant++
-    if(cant==3){
-      var glat2=gLat
-      var glon2=gLon
-      console.log(glat2)
-      console.log(glon2)
-    } 
-      
-    
+      console.log(bdLat)
+      console.log(bdLon)
+ }
+
+function fnGarages(){
+
+  garages = new H.map.Group();
+
+  console.log("entro a lo del forEach")
+  refGarage.get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        //doc.data() is never undefined for query doc snapshots
+         console.log(doc.id, " => ", doc.data());
+           nombre = doc.data().nomGarage
+           calle=doc.data().calleGarage
+           altura=doc.data().alturaGarage
+           ciudad=doc.data().ciudadGarage
+           gLat=doc.data().latitud
+           gLon=doc.data().longitud 
+          addMarkerToGroup(garages,{lat: gLat, lng:gLon}, nombre+" "+calle+" "+altura+" "+ciudad) 
+    });
+});
+
 }
 
 function addMarkerToGroup(g, coordinate, html) {
+  console.log(cant)
   var marker = new H.map.Marker(coordinate);
   // add custom data to the marker
   g.addObject(marker);
   marker.setData(html);
-  console.log(cant)
 }
 
  function addInfoBubble(map, ui) {
-
-   map.addObject(garages);
-   // add 'tap' event listener, that opens info bubble, to the group
-   garages.addEventListener('tap', function (evt) {
-     // event target is the marker itself, group is a parent event target
-     // for all objects that it contains
-     var bubble =  new H.ui.InfoBubble(evt.target.getGeometry(), {
-       // read custom data
-       content: evt.target.getData()
-     });
-     // show info bubble
-     ui.addBubble(bubble);
-   }, false);
-
+    map.addObject(garages);
+    // add 'tap' event listener, that opens info bubble, to the group
+    garages.addEventListener('tap', function (evt) {
+      // event target is the marker itself, group is a parent event target
+      // for all objects that it contains
+      var bubble =  new H.ui.InfoBubble(evt.target.getGeometry(), {
+        // read custom data
+        content: evt.target.getData()
+      });
+      // show info bubble
+      ui.addBubble(bubble);
+    }, false);
  }
-
-function fnGetGarages(){
-  refGarage.doc(elMail).get().then(function(querySnapshot){
-    querySnapshot.forEach(function(doc) {
-      
-    });
-  }).catch(function(error) {
-    console.log("Error getting documents: ", error);
-});
-}
 
 //Funcion de Registro del Usuario y Guardado de sus datos en la base de datos con Clave principal siendo su Email
 function fnRegister(){
@@ -418,6 +413,8 @@ function fnRegister(){
    console.log(gBike)
    console.log(gDisabled)
 
+   fnGetCoords(gStreet,gAddress,gCity)
+
    if(gOpenTime =="" && gCloseTime==""){
      gCloseTime="24 Horas"
      gOpenTime="24 Horas"
@@ -433,7 +430,9 @@ function fnRegister(){
     estacionamientoMotos: gBike,
     calleGarage: gStreet,
     alturaGarage: gAddress,
-    ciudadGarage: gCity
+    ciudadGarage: gCity,
+    latitud: bdLat,
+    longitud: bdLon
    }
    refGarage.doc(elMail).set(data);
 
@@ -442,7 +441,6 @@ function fnRegister(){
    console.log(gPrice)
    console.log(gOpenTime)
    console.log(gCloseTime)
-   console.log(gDesc)
    
  }
 
@@ -498,23 +496,15 @@ function LoguearseConLocal(u,c ){
           }
       }); 
 };
+    
+function test(){
 
-function fnGarages(){
+  var c = "San Luis";
+  var a = "900";
+  var ciu = "Rosario";
 
-  console.log("entro a lo del forEach")
-  refGarage.get().then(function(querySnapshot) {
-    querySnapshot.forEach(function(doc) {
-        //doc.data() is never undefined for query doc snapshots
-         console.log(doc.id, " => ", doc.data());
-          calle=doc.data().calleGarage
-          altura=doc.data().alturaGarage
-          ciudad=doc.data().ciudadGarage
-          fnGetCoords(calle, altura, ciudad)
-    });
-});
-
+  fnGetCoords(c,a,ciu)
 }
-      
 
 //Funcion para mostrar los datos mas claramente
 function fnShowError(txt){
