@@ -13,7 +13,6 @@
       </div>
     </div>
     <div class="page-content page-content hide-navbar-on-scroll">
-        <div class="block-title">Ingrese sus Datos</div>
         <form class="list" id="my-form">
             <ul>
               <li>
@@ -38,40 +37,12 @@
                   </div>
                 </div>
               </li>
-                <li>
-                  <div class="item-content item-input">
-                    <div class="item-inner">
-                      <div class="item-title item-label">Numero de Telefono</div>
-                      <div class="item-input-wrap">
-                        <input type="tel" name="Telefono" id="garageNumber" placeholder="Ingrese el Telefono">
-                      </div>
-                    </div>
-                  </div>
-                </li>
-                <li>
-                  <div class="item-content item-input">
-                    <div class="item-inner">
-                      <div class="item-title item-label">Precio por Hora</div>
-                      <div class="item-input-wrap">
-                        <input type="number" name="precioHora" id="hourChargeGarage" required> 
-                      </div>
-                    </div>
-                  </div>
-                </li>
               <li>
                 <div class="item-content item-input">
                   <div class="item-inner">
-                    <div class="item-title item-label">Hora de Apertura (vacio para 24hrs)</div>
+                    <div class="item-title item-label">Acceso para discapacitados</div>
                     <div class="item-input-wrap">
-                      <input type="time" name="hApertura" id="openTimeGarage">
-                    </div>
-                  </div>
-                </div>
-                <div class="item-content item-input">
-                  <div class="item-inner">
-                    <div class="item-title item-label">Hora de Cierre (vacio para 24hrs)</div>
-                    <div class="item-input-wrap">
-                      <input type="time" name="hCierre" id="closeTimeGarage">
+                      <input type="checkbox" name="discapacitados" value="false" id="disabledGarage">
                     </div>
                   </div>
                 </div>
@@ -79,17 +50,48 @@
               <li>
                 <div class="item-content item-input">
                   <div class="item-inner">
-                    <div class="item-title item-label">Acceso para discapacitados</div>
+                    <div class="item-title item-label">Estacionamiento para Motocicletas</div>
                     <div class="item-input-wrap">
-                      <input type="checkbox" name="discapacitados" value="true" id="disabledGarage">
+                      <input type="checkbox" name="gMotos" value="false" id="bikesGarage">
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <div class="col"><a class="button" id="verificarDatos">Verificar Datos</a></div>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title hiddenStart item-label">Numero de Telefono</div>
+                      <div class="item-input-wrap">
+                        <input class="hiddenStart" type="tel" name="Telefono" id="garageNumber" placeholder="Ingrese el Telefono">
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="item-content item-input">
+                    <div class="item-inner">
+                      <div class="item-title hiddenStart item-label">Precio por Hora</div>
+                      <div class="item-input-wrap">
+                        <input class="hiddenStart" type="number" name="precioHora" id="hourChargeGarage" required> 
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <li>
+                <div class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title hiddenStart item-label">Hora de Apertura (vacio para 24hrs)</div>
+                    <div class="item-input-wrap">
+                      <input class="hiddenStart" type="time" name="hApertura" id="openTimeGarage">
                     </div>
                   </div>
                 </div>
                 <div class="item-content item-input">
                   <div class="item-inner">
-                    <div class="item-title item-label">Estacionamiento para Motocicletas</div>
+                    <div class="item-title hiddenStart item-label">Hora de Cierre (vacio para 24hrs)</div>
                     <div class="item-input-wrap">
-                      <input type="checkbox" name="gMotocicleta" value="true" id="bikesGarage">
+                      <input class="hiddenStart" type="time" name="hCierre" id="closeTimeGarage">
                     </div>
                   </div>
                 </div>
