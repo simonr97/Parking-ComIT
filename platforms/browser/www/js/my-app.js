@@ -29,6 +29,10 @@ var app = new Framework7({
         url: 'pagRegistro.html',
       },
       {
+        path: '/pagInfoGarages/',
+        url: 'pagGarages.html',
+      },
+      {
         path: '/regGaraje/',
         url: 'pagRegistroGaraje.html',
       },
@@ -51,6 +55,8 @@ var garageDiscapacitados
 var garageMotos
 var garageData
 var restGarageData
+var arrServer = []
+var iGlobal=0
 
 
 
@@ -106,6 +112,33 @@ $$(document).on('page:init', '.page[data-name="about"]', function (e) {
       $$("#precioGarage").html(gPrice)
       $$("#horaApertura").html(gOpenTime)
       $$("#horaCierre").html(gCloseTime)
+
+      garages.addEventListener('tap', function (evt) {
+        // event target is the marker itself, group is a parent event target
+        // for all objects that it contains
+        var infoData = evt.target.getData()
+        infoData = infoData.toString()
+        infoData = infoData.slice(0, 5)
+        console.log(infoData)
+        
+        var largoString = arrServer.length
+        for (var i=0; i<largoString; i++){
+          var nom = arrServer[i].nomGarage
+          var test = nom.search(infoData)
+          if(test==0){
+            iGlobal = i
+            console.log(arrServer[i].nomGarage)
+            console.log(arrServer[i].calleGarage)
+            console.log(arrServer[i].alturaGarage)
+            console.log(arrServer[i].ciudadGarage)
+          }
+        }
+      })
+
+     
+
+
+
 });
 
 
@@ -117,6 +150,31 @@ $$(document).on('page:init', '.page[data-name="pagRegistro"]', function (e) {
   $$("#registraUsuario").on("click",fnRegister)
   
 })
+
+
+// Option 2. Using live 'page:init' event handlers for each page
+$$(document).on('page:init', '.page[data-name="pagInfoGarages"]', function (e) {
+  // Do something here when page with data-name="pagGarage" attribute loaded and initialized
+  $$("#navbarNomGarage").html(arrServer[iGlobal].nomGarage)
+  $$("#infotelGarage").html(arrServer[iGlobal].telGarage)
+  $$("#infoprecioGarage").html(arrServer[iGlobal].precioGarage)
+  $$("#infohoraApertura").html(arrServer[iGlobal].horaAperturaGarage)
+  $$("#infohoraCierre").html(arrServer[iGlobal].horaCierreGarage)
+  // $$("#infoaccesoDiscapacitados").html(arrServer[iGlobal].garageDiscapacitados)
+  // $$("#infomotoGarage").html(arrServer[iGlobal].garageMotos)
+  if(arrServer[iGlobal].accesoDiscapacitados == "true"){
+    $$("#infoaccesoDiscapacitados").html("Provee Acceso para discapacitados")
+  } else{
+    $$(".infoaccesoDiscapacitados").hide()
+  }
+
+  if(arrServer[iGlobal].estacionamientoMotos == "true"){
+    $$("#infomotoGarage").html("Posee Estacionamiento para Motocicletas")
+  } else{
+    $$(".infomotoGarage").hide()
+  }
+})
+
 
 // Option 2. Using live 'page:init' event handlers for each page
 $$(document).on('page:init', '.page[data-name="regGaraje"]', function (e) {
@@ -353,7 +411,18 @@ function fnCreateMap(){
     var mapEvents = new H.mapevents.MapEvents(map) 
     var behavior = new H.mapevents.Behavior(mapEvents);
 
-    var svgMarkup = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIyNCIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6Y2M9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zIyIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTEwMjguNCkiPjxwYXRoIGQ9Im0xMiAwYy00LjQxODMgMi4zNjg1ZS0xNSAtOCAzLjU4MTctOCA4IDAgMS40MjEgMC4zODE2IDIuNzUgMS4wMzEyIDMuOTA2IDAuMTA3OSAwLjE5MiAwLjIyMSAwLjM4MSAwLjM0MzggMC41NjNsNi42MjUgMTEuNTMxIDYuNjI1LTExLjUzMWMwLjEwMi0wLjE1MSAwLjE5LTAuMzExIDAuMjgxLTAuNDY5bDAuMDYzLTAuMDk0YzAuNjQ5LTEuMTU2IDEuMDMxLTIuNDg1IDEuMDMxLTMuOTA2IDAtNC40MTgzLTMuNTgyLTgtOC04em0wIDRjMi4yMDkgMCA0IDEuNzkwOSA0IDQgMCAyLjIwOS0xLjc5MSA0LTQgNC0yLjIwOTEgMC00LTEuNzkxLTQtNCAwLTIuMjA5MSAxLjc5MDktNCA0LTR6IiBmaWxsPSIjZTc0YzNjIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEwMjguNCkiLz48cGF0aCBkPSJtMTIgM2MtMi43NjE0IDAtNSAyLjIzODYtNSA1IDAgMi43NjEgMi4yMzg2IDUgNSA1IDIuNzYxIDAgNS0yLjIzOSA1LTUgMC0yLjc2MTQtMi4yMzktNS01LTV6bTAgMmMxLjY1NyAwIDMgMS4zNDMxIDMgM3MtMS4zNDMgMy0zIDMtMy0xLjM0MzEtMy0zIDEuMzQzLTMgMy0zeiIgZmlsbD0iI2MwMzkyYiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAxMDI4LjQpIi8+PC9nPjwvc3ZnPg==';
+    var svgMarkup = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/'+
+    'PjxzdmcgaGVpZ2h0PSIyNCIgdmVyc2lvbj0iMS4xIiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9'+
+    'yZy8yMDAwL3N2ZyIgeG1sbnM6Y2M9Imh0dHA6Ly9jcmVhdGl2ZWNvbW1vbnMub3JnL25zIyIgeG1sbnM6ZGM9Imh0dHA6L'+
+    'y9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLX'+
+    'N5bnRheC1ucyMiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTEwMjguNCkiPjxwYXRoIGQ9Im0xMiAwYy00LjQxODMgMi4zNj'+
+    'g1ZS0xNSAtOCAzLjU4MTctOCA4IDAgMS40MjEgMC4zODE2IDIuNzUgMS4wMzEyIDMuOTA2IDAuMTA3OSAwLjE5MiAwLjIyMSAwLjM4M'+
+    'SAwLjM0MzggMC41NjNsNi42MjUgMTEuNTMxIDYuNjI1LTExLjUzMWMwLjEwMi0wLjE1MSAwLjE5LTAuMzExIDAuMjgxLTAuNDY5bDAuMDYz'+
+    'LTAuMDk0YzAuNjQ5LTEuMTU2IDEuMDMxLTIuNDg1IDEuMDMxLTMuOTA2IDAtNC40MTgzLTMuNTgyLTgtOC04em0wIDRjMi4yMDkgMCA0IDEuNzk'+
+    'wOSA0IDQgMCAyLjIwOS0xLjc5MSA0LTQgNC0yLjIwOTEgMC00LTEuNzkxLTQtNCAwLTIuMjA5MSAxLjc5MDktNCA0LTR6IiBmaWxsPSIjZTc0YzNjI'+
+    'iB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEwMjguNCkiLz48cGF0aCBkPSJtMTIgM2MtMi43NjE0IDAtNSAyLjIzODYtNSA1IDAgMi43NjEgMi4yMzg2ID'+
+    'UgNSA1IDIuNzYxIDAgNS0yLjIzOSA1LTUgMC0yLjc2MTQtMi4yMzktNS01LTV6bTAgMmMxLjY1NyAwIDMgMS4zNDMxIDMgM3MtMS4zNDMgMy0zIDMtMy0xLj'+
+    'M0MzEtMy0zIDEuMzQzLTMgMy0zeiIgZmlsbD0iI2MwMzkyYiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAxMDI4LjQpIi8+PC9nPjwvc3ZnPg==';
 
     // Create an icon, an object holding the latitude and longitude, and a marker:
     var icon = new H.map.Icon(svgMarkup),
@@ -368,6 +437,7 @@ function fnCreateMap(){
 
 function fnGarages(){
 
+  var cont = 0
   garages = new H.map.Group();
 
   console.log("entro a lo del forEach")
@@ -375,13 +445,20 @@ function fnGarages(){
     querySnapshot.forEach(function(doc) {
         //doc.data() is never undefined for query doc snapshots
          console.log(doc.id, " => ", doc.data());
+         
            nombre = doc.data().nomGarage
            calle=doc.data().calleGarage
            altura=doc.data().alturaGarage
            ciudad=doc.data().ciudadGarage
            gLat=doc.data().latitud
            gLon=doc.data().longitud 
-          addMarkerToGroup(garages,{lat: gLat, lng:gLon}, nombre+" "+calle+" "+altura+" "+ciudad) 
+
+            arrServer[cont] =doc.data()
+
+            console.log(arrServer)
+          cont ++
+          addMarkerToGroup(garages,{lat: gLat, lng:gLon},nombre+" "+calle+" "+altura+" "+ciudad+ 
+          "<a class='button' id='regarage' href='/pagInfoGarages/'>Aceptar</a>") 
     });
 });
 
@@ -402,7 +479,7 @@ function addMarkerToGroup(g, coordinate, html) {
       // for all objects that it contains
       var bubble =  new H.ui.InfoBubble(evt.target.getGeometry(), {
         // read custom data
-        content: evt.target.getData()
+        content:evt.target.getData()
       });
       // show info bubble
       ui.addBubble(bubble);
@@ -460,8 +537,8 @@ function fnRegister(){
   garageData.precioGarage = gPrice
   garageData.horaAperturaGarage = gOpenTime
   garageData.horaCierreGarage = gCloseTime
-  garageData.garageDiscapacitados = gDisabled
-  garageData.garageMotos = gBike
+  garageData.accesoDiscapacitados = gDisabled
+  garageData.estacionamientoMotos = gBike
 
 
   console.log(garageData)
